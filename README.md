@@ -24,4 +24,4 @@ The dataset is filtered to University of Michigan affiliated papers only.
 ### Commands
 conda activate scisci
 uvicorn main:app --reload --port 8000
-python -m http.server 3000. (frontend)
+python -m http.server 3000 (frontend)
