@@ -34,10 +34,20 @@ def viz_agent(state: AgentState) -> AgentState:
         "No markdown, no explanation, raw JSON only."
     ))
 
+    import json
+    try:
+        records = json.loads(raw_data)
+        if isinstance(records, list):
+            truncated = json.dumps(records[:50], ensure_ascii=False)
+        else:
+            truncated = json.dumps(records, ensure_ascii=False)[:3000]
+    except Exception:
+        truncated = raw_data[:3000]
+
     prompt = HumanMessage(content=(
         f"User question: {user_question}\n\n"
         f"Analysis: {analysis}\n\n"
-        f"Data (JSON):\n{raw_data[:3000]}\n\n"
+        f"Data (JSON):\n{truncated}\n\n"
         "Return the JSON object with 'spec' and 'summary' keys."
     ))
 
@@ -55,6 +65,9 @@ def viz_agent(state: AgentState) -> AgentState:
     except Exception:
         spec = {}
         summary = analysis or "Here is the data."
+
+    if not spec or "data" not in spec or "$schema" not in spec:
+        spec = {}
 
     return {
         "messages": [response],

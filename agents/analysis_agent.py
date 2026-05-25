@@ -8,6 +8,14 @@ llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
 
 def analysis_agent(state: AgentState) -> AgentState:
     raw_data = state.get("raw_data", "")
+    if not raw_data or raw_data.strip() in ("", "[]", "{}"):
+        return {
+            "messages": state["messages"],
+            "analysis": "no data retrieved",
+            "raw_data": raw_data,
+            "vega_spec": {},
+            "summary": "no data retrieved",
+        }
 
     user_question = ""
     for m in state["messages"]:
@@ -23,9 +31,19 @@ def analysis_agent(state: AgentState) -> AgentState:
         "Be specific — mention actual numbers. Do not generate any visualization."
     ))
 
+    import json
+    try:
+        records = json.loads(raw_data)
+        if isinstance(records, list):
+            truncated = json.dumps(records[:60], ensure_ascii=False)
+        else:
+            truncated = json.dumps(records, ensure_ascii=False)[:4000]
+    except Exception:
+        truncated = raw_data[:4000]
+
     prompt = HumanMessage(content=(
         f"User question: {user_question}\n\n"
-        f"Raw data:\n{raw_data[:4000]}\n\n"
+        f"Raw data:\n{truncated}\n\n"
         "Write a 2-3 sentence analysis of what this data shows."
     ))
 
