@@ -21,7 +21,38 @@ The dataset is filtered to University of Michigan affiliated papers only.
    - fields.csv
 5. Keep only references and metadata associated with the sampled papers
 
-### Commands
+## System Architecture
+
+The backend is implemented as a LangGraph multi-agent pipeline:
+
+1. Filter Agent
+   - Interprets the user question
+   - Selects and calls the appropriate data query tool
+
+2. Analysis Agent
+   - Interprets queried JSON data
+   - Generates natural-language statistical summaries
+
+3. Visualization Agent
+   - Produces Vega-Lite interactive chart specifications
+   - Adds tooltip and filtering interactions
+
+The FastAPI backend exposes:
+- POST /chat
+- GET /health
+
+## Setup
+```bash
 conda activate scisci
+
+pip install -r requirements.txt
+
 uvicorn main:app --reload --port 8000
-python -m http.server 3000 (frontend)
+```
+
+## Frontend
+
+The frontend is implemented separately using Vue.js and Vega-Lite.
+
+Frontend repo:
+<https://github.com/AdelineXinyi/project2_frontend>
